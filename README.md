@@ -148,6 +148,18 @@ python app.py
 
 ---
 
+## 部署到公网（Render）
+
+想要一个随时可访问的在线链接？本项目已内置 `render.yaml`，可一键部署到 [Render](https://render.com) 免费托管：
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/hututu-ai/jiajiao-feedback-tool)
+
+或手动操作：登录 Render → **New → Blueprint** → 连接本仓库 → Render 自动读取 `render.yaml` 并部署，几分钟后给你一个 `https://xxx.onrender.com` 链接。
+
+> ⚠️ 注意：① 免费版服务闲置会休眠，首次访问需等 30 秒左右唤醒；② Render 文件系统是临时的，`data/`（历史、学生）在每次重新部署后会重置——仅作在线演示用，长期数据请本地运行。
+
+---
+
 ## API 配置
 
 本工具不内置任何大模型，**用你自己的 API Key**，灵活又省钱。在页面右上角填三样东西即可：
