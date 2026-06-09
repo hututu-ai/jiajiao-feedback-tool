@@ -1,0 +1,1558 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>家教反馈助手 · 给家长确定感</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+SC:wght@400;500;700;900&family=Noto+Serif+SC:wght@600;700;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<style>
+@font-face{
+  font-family:'ZhuKai';
+  src:url('/static/fonts/zhukai.ttf') format('truetype');
+  font-weight:normal;
+  font-style:normal;
+  font-display:swap;
+}
+:root{
+  --paper:#F5F8FC;        /* 冷白底 */
+  --paper-2:#EBF1F7;
+  --card:#FFFFFF;
+  --ink:#1C1B19;
+  --ink-soft:#6B665C;
+  --line:#1C1B19;
+  --green:#6BB5E0;        /* 淡蓝 · 主行动色 */
+  --green-soft:#D6E8F7;   /* 浅蓝填充 */
+  --honey:#F2C4CE;        /* 亮粉 · 强调 */
+  --honey-soft:#F5DAE0;
+  --blush:#F5D6DE;        /* 亮粉 · 待改进 */
+  --sky:#CFE3F2;          /* 浅蓝点缀 */
+  --shadow:4px 4px 0 var(--ink);
+  --shadow-sm:2px 2px 0 var(--ink);
+  --shadow-lg:7px 7px 0 var(--ink);
+  --br:10px;
+  --font-sans:'Inter','Noto Sans SC',-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;
+  --font-serif:'Noto Serif SC','Songti SC',serif;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:var(--font-sans);background:var(--paper);color:var(--ink);
+  margin:0;padding:0;font-weight:500;line-height:1.7;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+}
+h1,h2,h3,h4{font-weight:900;letter-spacing:-.01em;line-height:1.18;margin:0;}
+::selection{background:var(--green-soft);}
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-track{background:var(--paper)}
+::-webkit-scrollbar-thumb{background:var(--ink);border-radius:0}
+
+/* ===== 顶栏 ===== */
+.top-nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  background:rgba(235,241,247,.9);backdrop-filter:blur(10px);
+  height:68px;display:flex;align-items:center;justify-content:space-between;
+  padding:0 32px;border-bottom:2px solid var(--line);
+}
+.top-nav .logo{display:flex;align-items:center;gap:12px;font-weight:900;color:var(--ink);}
+.top-nav .logo .mark{
+  width:38px;height:38px;border:2px solid var(--line);border-radius:9px;
+  background:var(--green);box-shadow:var(--shadow-sm);
+  display:flex;align-items:center;justify-content:center;font-size:1.2rem;
+}
+.top-nav .logo .wm{display:flex;flex-direction:column;line-height:1.1;}
+.top-nav .logo .wm b{font-size:1.18rem;letter-spacing:-.02em;}
+.top-nav .logo .wm small{font-size:.68rem;font-weight:700;color:var(--ink-soft);letter-spacing:.02em;}
+.nav-right{display:flex;align-items:center;gap:12px;position:relative}
+
+/* ===== API 按钮 / 下拉 ===== */
+.api-trigger{
+  display:flex;align-items:center;gap:8px;padding:9px 18px;
+  border:2px solid var(--line);border-radius:var(--br);background:var(--card);
+  cursor:pointer;font-size:.85rem;font-weight:800;color:var(--ink);
+  transition:transform .08s;box-shadow:var(--shadow-sm);
+}
+.api-trigger:active{transform:translate(2px,2px);box-shadow:0 0 0 var(--ink)}
+.api-trigger .dot{width:9px;height:9px;border-radius:50%;border:1.5px solid var(--ink);}
+.api-trigger .dot.on{background:var(--green)}
+.api-trigger .dot.off{background:#D8D4CC}
+.api-dropdown{
+  position:absolute;top:56px;right:0;width:480px;background:var(--card);
+  border:2px solid var(--line);border-radius:var(--br);box-shadow:var(--shadow-lg);
+  padding:22px 26px;display:none;z-index:200;
+}
+.api-dropdown.open{display:block}
+.api-dropdown h3{font-weight:900;font-size:1rem;margin:0 0 14px;}
+.provider-grid{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.provider-btn{
+  padding:6px 13px;border:2px solid var(--line);border-radius:var(--br);
+  background:var(--card);font-size:.78rem;cursor:pointer;transition:all .08s;
+  color:var(--ink);font-weight:700;
+}
+.provider-btn:hover{background:var(--green-soft)}
+.provider-btn:active{transform:translate(1px,1px)}
+.form-compact{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.form-compact input,.form-compact select{
+  width:100%;padding:9px 12px;font-size:.85rem;border:2px solid var(--line);
+  border-radius:var(--br);background:var(--card);outline:none;font-weight:500;font-family:var(--font-sans);
+}
+.form-compact input:focus,.form-compact select:focus{background:var(--honey-soft)}
+.api-label{font-size:.72rem;font-weight:800;display:block;margin-bottom:4px;color:var(--ink-soft);}
+
+
+/* ===== 通用容器 / 章节 ===== */
+.section{padding:96px 32px;}
+.wrap{max-width:1320px;margin:0 auto;}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:8px;padding:6px 16px;
+  border:2px solid var(--line);border-radius:999px;background:var(--card);
+  font-size:.8rem;font-weight:800;box-shadow:var(--shadow-sm);margin-bottom:22px;
+}
+.eyebrow .pip{width:8px;height:8px;border-radius:50%;background:var(--green);}
+
+/* ===== HERO ===== */
+.hero{
+  min-height:100vh;display:flex;flex-direction:column;justify-content:center;
+  padding:120px 32px 70px;position:relative;overflow:hidden;
+}
+.hero::after{ /* 装饰网格 */
+  content:'';position:absolute;inset:0;z-index:0;pointer-events:none;
+  background-image:radial-gradient(var(--ink) .8px,transparent .8px);
+  background-size:30px 30px;opacity:.05;
+}
+.hero-inner{max-width:1100px;margin:0 auto;width:100%;position:relative;z-index:1;text-align:center;}
+.hero h1{
+  font-size:clamp(2.6rem,6.2vw,5.2rem);font-weight:900;letter-spacing:-.03em;
+  margin:0 0 26px;line-height:1.08;
+}
+.hero h1 .hl{
+  position:relative;white-space:nowrap;
+  background:linear-gradient(180deg,transparent 62%,var(--green-soft) 62%);
+  padding:0 .1em;
+}
+.hero .quote-serif{font-family:var(--font-serif);}
+.hero .sub{
+  font-size:clamp(1.05rem,1.7vw,1.35rem);font-weight:500;color:var(--ink-soft);
+  max-width:680px;margin:0 auto 40px;line-height:1.7;
+}
+.hero-actions{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-bottom:30px}
+.btn-start{
+  display:inline-flex;align-items:center;gap:10px;padding:16px 40px;
+  border:2px solid var(--line);border-radius:var(--br);background:var(--green);
+  color:var(--ink);font-weight:900;font-size:1.12rem;cursor:pointer;
+  box-shadow:var(--shadow-sm);transition:transform .08s;text-decoration:none;
+}
+.btn-start:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+.btn-ghost{
+  display:inline-flex;align-items:center;gap:8px;padding:16px 30px;
+  border:2px solid var(--line);border-radius:var(--br);background:var(--card);
+  color:var(--ink);font-weight:800;font-size:1rem;cursor:pointer;
+  box-shadow:var(--shadow-sm);transition:transform .08s;
+}
+.btn-ghost:active{transform:translate(2px,2px);box-shadow:0 0 0 var(--ink)}
+.hero-tag{display:inline-flex;gap:10px;flex-wrap:wrap;justify-content:center;font-size:.82rem;font-weight:700;color:var(--ink-soft)}
+.hero-tag span{display:inline-flex;align-items:center;gap:5px;}
+.hero-tag b{color:var(--green);font-weight:900}
+
+/* ===== 理念 · 四模块 ===== */
+.philosophy{background:var(--paper-2);border-top:2px solid var(--line);border-bottom:2px solid var(--line);}
+.phi-quote{
+  font-family:var(--font-serif);font-weight:700;
+  font-size:clamp(1.4rem,2.8vw,2.2rem);line-height:1.5;letter-spacing:-.01em;
+  max-width:880px;margin:0 0 12px;
+}
+.phi-quote em{font-style:normal;background:var(--honey);padding:0 .12em;box-decoration-break:clone;-webkit-box-decoration-break:clone;}
+.phi-quote .strike{color:var(--ink-soft);text-decoration:line-through;text-decoration-thickness:2px;font-weight:600;}
+.phi-note{font-size:1rem;color:var(--ink-soft);max-width:760px;margin:0 0 54px;font-weight:500;}
+.mod-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
+.mod-card{
+  background:var(--card);border:2px solid var(--line);border-radius:var(--br);
+  padding:26px 22px;box-shadow:var(--shadow);position:relative;transition:transform .12s;
+}
+.mod-card:hover{transform:translate(-2px,-2px);box-shadow:var(--shadow-lg)}
+.mod-card .mod-no{
+  position:absolute;top:-14px;left:20px;width:30px;height:30px;border:2px solid var(--line);
+  border-radius:8px;background:var(--honey);font-weight:900;font-size:.9rem;
+  display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-sm);
+}
+.mod-card .mod-ic{font-size:1.9rem;margin:10px 0 12px;display:block;}
+.mod-card h3{font-size:1.22rem;margin:0 0 10px;letter-spacing:-.02em;}
+.mod-card p{font-size:.92rem;color:var(--ink-soft);margin:0;line-height:1.65;font-weight:500;}
+.mod-card.c1{background:var(--card)} .mod-card.c1 .mod-no{background:var(--green-soft)}
+.mod-card.c2 .mod-no{background:var(--sky)}
+.mod-card.c3 .mod-no{background:var(--honey)}
+.mod-card.c4 .mod-no{background:var(--blush)}
+
+/* ===== 流程 ===== */
+.flow{}
+.flow-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;}
+.flow-step{
+  background:var(--card);border:2px solid var(--line);border-radius:var(--br);
+  padding:24px 18px;box-shadow:var(--shadow-sm);text-align:center;position:relative;
+}
+.flow-step .fs-no{
+  width:40px;height:40px;border:2px solid var(--line);border-radius:10px;
+  background:var(--green-soft);font-weight:900;font-size:1.1rem;margin:0 auto 12px;
+  display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-sm);
+}
+.flow-step .fs-ic{font-size:1.4rem;margin-bottom:6px}
+.flow-step h4{font-size:1rem;margin:0 0 4px}
+.flow-step p{font-size:.8rem;color:var(--ink-soft);margin:0;font-weight:500}
+.flow-step:not(:last-child)::after{
+  content:'→';position:absolute;right:-12px;top:50%;transform:translateY(-50%);
+  font-weight:900;font-size:1.2rem;color:var(--ink);z-index:2;
+}
+
+/* ===== MAIN 工具 ===== */
+.main-wrap{display:none}
+.main-wrap.show{display:block}
+.container{max-width:1480px;margin:0 auto;padding:0 28px}
+.tool-head{margin:14px 0 18px;}
+.tool-head h2{font-size:1.5rem;letter-spacing:-.02em;margin-bottom:4px}
+.tool-head p{color:var(--ink-soft);font-size:.9rem;margin:0;font-weight:500}
+.two-col{display:grid;grid-template-columns:1.05fr 1fr;gap:24px;align-items:stretch}
+
+/* ===== 单屏应用壳（桌面）：页面不滚动，各栏框内滚动 ===== */
+@media(min-width:1025px){
+  body.tool-mode{overflow:hidden;height:100dvh}
+  .main-wrap.show{display:flex;flex-direction:column;height:100dvh;padding-top:68px;}
+  .main-wrap.show .container{flex:1;min-height:0;display:flex;flex-direction:column;padding-top:14px;padding-bottom:18px;}
+  .tool-head{flex:none}
+  .main-wrap.show .two-col{flex:1;min-height:0;}
+  .col-left{min-height:0;overflow-y:auto;padding-right:12px;margin-right:-6px;}
+  .col-left .card:last-child{margin-bottom:2px}
+  .col-right{min-height:0;}
+}
+
+/* ===== 卡片 ===== */
+.card{
+  background:var(--card);border:2px solid var(--line);border-radius:var(--br);
+  padding:24px 26px;box-shadow:var(--shadow-sm);margin-bottom:20px;
+}
+.card-title{
+  font-weight:900;font-size:1.15rem;margin:0 0 18px;letter-spacing:-.02em;
+  display:flex;align-items:center;gap:10px;
+}
+.card-title .step-chip{
+  width:26px;height:26px;border:2px solid var(--line);border-radius:7px;
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:.82rem;font-weight:900;background:var(--green-soft);
+}
+.card-title .badge{
+  margin-left:auto;display:inline-block;padding:3px 12px;border:2px solid var(--line);
+  font-size:.72rem;font-weight:800;border-radius:999px;
+}
+.card-title .badge.req{background:var(--blush)}
+.card-title .badge.req2{background:var(--sky)}
+.card-title .badge.opt{background:var(--green-soft)}
+.card-title .badge.last{background:var(--honey)}
+
+/* ===== 表单 ===== */
+.form-group{margin-bottom:16px}
+.form-group:last-child{margin-bottom:0}
+.form-group label{display:block;font-size:.85rem;font-weight:800;margin-bottom:7px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+input,select,textarea{
+  width:100%;padding:11px 14px;font-size:.95rem;font-weight:500;color:var(--ink);
+  border:2px solid var(--line);border-radius:var(--br);background:var(--card);outline:none;
+  font-family:var(--font-sans);transition:background .1s;
+}
+input:focus,select:focus,textarea:focus{background:var(--honey-soft)}
+textarea{resize:vertical;min-height:76px;line-height:1.6}
+textarea.lecture-input{min-height:150px}
+
+/* ===== 上传 ===== */
+.upload-zone{
+  border:2.5px dashed var(--line);border-radius:var(--br);padding:24px;text-align:center;
+  cursor:pointer;transition:all .12s;background:var(--paper-2);position:relative
+}
+.upload-zone:hover,.upload-zone.dragover{background:var(--green-soft)}
+.upload-zone .icon{font-size:1.9rem;margin-bottom:6px}
+.upload-zone .text{font-size:.95rem;font-weight:800;color:var(--ink)}
+.upload-zone .hint{font-size:.78rem;color:var(--ink-soft);margin-top:3px}
+.upload-zone.has-file{background:var(--green-soft)}
+.upload-zone input[type=file]{position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer}
+.upload-status{display:none;align-items:center;gap:7px;font-size:.85rem;margin-top:8px;font-weight:700;}
+.upload-status.show{display:flex}
+.upload-remove{
+  margin-left:auto;width:20px;height:20px;border:1.5px solid var(--line);border-radius:50%;
+  background:var(--card);cursor:pointer;font-size:.62rem;font-weight:900;line-height:18px;
+  text-align:center;padding:0;color:var(--ink-soft);transition:all .1s;
+}
+.upload-remove:hover{background:var(--blush);color:var(--ink)}
+
+/* ===== 课堂表现 ===== */
+.perf-section{margin-bottom:18px}
+.perf-label{font-size:.88rem;font-weight:800;margin-bottom:9px;display:flex;align-items:center;gap:8px;justify-content:space-between;}
+.perf-label .count{font-size:.74rem;font-weight:700;color:var(--ink-soft)}
+.chip-group{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:9px}
+.chip{
+  padding:7px 15px;font-size:.84rem;font-weight:600;border:2px solid var(--line);
+  border-radius:999px;background:var(--card);cursor:pointer;transition:all .08s;
+  user-select:none;display:inline-block;
+}
+.chip:hover{transform:translateY(-1px)}
+.chip:active{transform:translate(1px,1px)}
+.chip.pos.selected{background:var(--green-soft);font-weight:800}
+.chip.neg.selected{background:var(--blush);font-weight:800}
+.chip.custom{position:relative}
+.chip.custom .remove-chip{
+  display:none;position:absolute;top:-8px;right:-8px;width:19px;height:19px;
+  background:var(--ink);color:#fff;font-size:.62rem;line-height:19px;text-align:center;
+  cursor:pointer;border:none;font-weight:900;border-radius:50%;
+}
+.chip.custom:hover .remove-chip{display:block}
+.chip-add{display:flex;gap:8px;align-items:center}
+.chip-add input{flex:1;padding:7px 12px;font-size:.84rem;border:2px dashed var(--line);border-radius:999px;outline:none;max-width:200px;background:var(--paper-2);}
+.chip-add input:focus{background:var(--honey-soft)}
+.chip-add button{
+  padding:7px 16px;border:2px solid var(--line);border-radius:999px;background:var(--ink);
+  color:#fff;font-size:.82rem;font-weight:700;cursor:pointer;transition:transform .08s;
+}
+.chip-add button:active{transform:translate(1px,1px)}
+
+/* ===== 可折叠卡片 ===== */
+.card-title.toggle{cursor:pointer;user-select:none}
+.card-title .chev{margin-left:10px;font-size:.8rem;transition:transform .2s;color:var(--ink-soft)}
+.card.collapsed .card-title .chev{transform:rotate(-90deg)}
+.card.collapsed .collapse-body{display:none}
+.card-title .sel-sum{margin-left:8px;font-size:.74rem;font-weight:800;color:var(--green);background:var(--green-soft);border:1.5px solid var(--line);border-radius:999px;padding:1px 9px}
+.card-title .sel-sum:empty{display:none}
+
+/* ===== 生成类型 ===== */
+.gen-type{display:flex;gap:12px;margin-bottom:18px}
+.gen-type-btn{
+  flex:1;padding:16px 12px;border:2px solid var(--line);border-radius:var(--br);
+  background:var(--card);cursor:pointer;text-align:center;transition:transform .08s;
+  box-shadow:var(--shadow-sm);
+}
+.gen-type-btn:active{transform:translate(2px,2px);box-shadow:0 0 0 var(--ink)}
+.gen-type-btn .gt-icon{font-size:1.6rem;margin-bottom:4px}
+.gen-type-btn .gt-label{font-size:.95rem;font-weight:800;}
+.gen-type-btn .gt-desc{font-size:.72rem;color:var(--ink-soft);margin-top:2px;font-weight:600}
+.gen-type-btn.selected{background:var(--green-soft);border-width:2px}
+.gen-type-btn.selected .gt-label{font-weight:900}
+
+/* ===== 按钮 ===== */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:11px 26px;
+  font-size:.92rem;font-weight:800;border:2px solid var(--line);border-radius:var(--br);
+  cursor:pointer;transition:transform .08s;background:var(--card);color:var(--ink);font-family:var(--font-sans);
+}
+.btn-primary{background:var(--green);width:100%;font-size:1.12rem;padding:16px 28px;box-shadow:var(--shadow-sm)}
+.btn-primary:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--ink)}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn-outline{box-shadow:var(--shadow-sm)}
+.btn-outline:active{transform:translate(1px,1px);box-shadow:0 0 0 var(--ink)}
+.btn-mint{background:var(--green-soft);box-shadow:var(--shadow-sm)}
+.btn-mint:active{transform:translate(1px,1px);box-shadow:0 0 0 var(--ink)}
+.btn-yellow{background:var(--honey);box-shadow:var(--shadow-sm)}
+.btn-yellow:active{transform:translate(1px,1px);box-shadow:0 0 0 var(--ink)}
+.btn-sm{padding:8px 16px;font-size:.82rem;}
+
+/* ===== 输出 · 等高彩色画布 ===== */
+.output-card{
+  height:100%;margin-bottom:0;padding:22px;
+  background:linear-gradient(165deg,#E8F0F8 0%,#D6E6F5 100%);
+  border:2px solid var(--line);box-shadow:var(--shadow);
+  display:flex;flex-direction:column;
+}
+.output-sticky{flex:1;min-height:0;display:flex;flex-direction:column;}
+.output-head{flex:none}
+.framework-legend{flex:none}
+.output-surface{
+  flex:1;min-height:0;overflow-y:auto;
+  background:var(--card);border:2px solid var(--line);border-radius:var(--br);
+  box-shadow:var(--shadow-sm);padding:18px 20px;
+}
+.output-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:10px;flex-wrap:wrap}
+.output-head .oh-title{font-weight:900;font-size:1.22rem;display:flex;align-items:center;gap:9px;letter-spacing:-.02em}
+.output-head .oh-title .live{width:9px;height:9px;border-radius:50%;background:var(--green);border:1.5px solid var(--ink);box-shadow:0 0 0 4px rgba(107,181,224,.25)}
+.output-head .oh-actions{display:flex;gap:7px}
+.framework-legend{
+  display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;padding:10px 12px;
+  background:rgba(255,255,255,.7);border:1.5px solid var(--line);border-radius:var(--br);
+}
+.framework-legend .fl-title{font-size:.72rem;font-weight:800;color:var(--ink-soft);width:100%;margin-bottom:2px}
+.framework-legend span.tag{font-size:.72rem;font-weight:700;padding:3px 9px;border:1.5px solid var(--line);border-radius:999px;background:var(--card)}
+.output-tabs{display:flex;gap:6px;margin-bottom:14px;background:var(--paper-2);padding:5px;border-radius:var(--br);border:2px solid var(--line)}
+.output-tab{
+  flex:1;padding:10px 14px;border:2px solid transparent;border-radius:7px;
+  font-size:.88rem;font-weight:800;cursor:pointer;background:transparent;color:var(--ink-soft);transition:all .1s;
+}
+.output-tab.active{border-color:var(--line);background:var(--card);color:var(--ink);box-shadow:var(--shadow-sm)}
+.output-content{display:none}
+.output-content.active{display:block}
+.output-editable{
+  min-height:340px;font-size:.96rem;line-height:1.85;padding:2px 4px;outline:none;font-weight:500;
+}
+.output-editable:focus{outline:2px solid var(--line);border-radius:6px}
+.output-editable:empty::before{
+  content:"填好左侧资料 · 选择类型 · 点「一键生成」\A生成的反馈会出现在这里，可直接点选修改";
+  white-space:pre;color:#B7B1A4;font-size:.92rem;display:block;text-align:center;padding:90px 20px;font-weight:600;line-height:1.9
+}
+.output-editable .feedback-content{padding:4px 0}
+.output-editable .feedback-content .section-title{
+  font-weight:900;font-size:1.04rem;margin:18px 0 7px;padding-left:12px;
+  border-left:4px solid var(--green);letter-spacing:-.01em;
+}
+.output-editable .feedback-content .section-title:first-child{margin-top:2px}
+.output-toolbar{display:flex;gap:8px;padding:12px 0 0;flex-wrap:wrap;border-top:2px solid var(--line);margin-top:14px}
+
+/* ===== 加载 ===== */
+.spinner{display:none;align-items:center;justify-content:center;gap:10px;padding:42px 0;font-weight:800}
+.spinner.show{display:flex}
+.spinner .dot{width:12px;height:12px;border:2px solid var(--ink);border-radius:3px;animation:hop 1s ease-in-out infinite}
+.spinner .dot:nth-child(1){background:var(--green)}
+.spinner .dot:nth-child(2){background:var(--honey);animation-delay:.15s}
+.spinner .dot:nth-child(3){background:var(--blush);animation-delay:.3s}
+@keyframes hop{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-9px)}}
+
+/* ===== 导出卡片 ===== */
+.export-card{background:var(--card);padding:38px 42px;line-height:1.9;color:var(--ink);font-weight:500;font-family:var(--font-sans)}
+.export-card .ec-header{text-align:center;margin-bottom:20px;padding-bottom:16px;border-bottom:3px solid var(--ink)}
+.export-card .ec-header .ec-title{font-weight:900;font-size:1.7rem;letter-spacing:-.02em}
+.export-card .ec-header .ec-meta{font-size:.85rem;color:var(--ink-soft);margin-top:4px}
+.export-card .ec-body{white-space:pre-wrap;line-height:2;font-size:1rem}
+.export-card .ec-footer{margin-top:20px;padding-top:14px;border-top:2px solid var(--ink);text-align:center;font-size:.8rem;color:var(--ink-soft);font-weight:700}
+
+/* ===== Modal ===== */
+.modal-overlay{position:fixed;inset:0;background:rgba(28,27,25,.55);z-index:300;display:none;align-items:center;justify-content:center;backdrop-filter:blur(3px)}
+.modal-overlay.show{display:flex}
+.modal-box{background:var(--card);border:2px solid var(--line);border-radius:var(--br);padding:30px;box-shadow:var(--shadow-lg);max-width:90vw;max-height:90vh;overflow:auto;text-align:center}
+.modal-box img{max-width:100%;max-height:70vh;border:2px solid var(--line);border-radius:6px}
+.modal-actions{margin-top:18px;display:flex;gap:12px;justify-content:center}
+
+/* ===== Toast ===== */
+.toast{
+  position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(80px);
+  background:var(--ink);color:#fff;padding:12px 26px;border-radius:var(--br);
+  font-size:.88rem;z-index:400;opacity:0;transition:all .22s;pointer-events:none;
+  font-weight:700;border:2px solid var(--ink);box-shadow:var(--shadow)
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ===== 逐行折叠 ===== */
+.perf-collapse-trigger{cursor:pointer;user-select:none;border-radius:var(--br);padding:2px 4px;margin:-2px -4px;transition:background .1s}
+.perf-collapse-trigger:hover{background:var(--paper-2)}
+.perf-chev{font-size:.72rem;color:var(--ink-soft);margin-left:auto;transition:transform .2s;display:inline-block;}
+.perf-chev.open{transform:rotate(180deg)}
+.chip-expand-row{text-align:center;margin:2px 0 10px;width:100%}
+.perf-more-wrap{overflow:hidden;max-height:0;transition:max-height .2s}
+.perf-more-wrap.open{max-height:2000px}
+.chip-expand-btn{background:none;border:none;color:var(--ink-soft);font-size:.78rem;font-weight:700;cursor:pointer;padding:3px 14px;font-family:var(--font-sans);transition:color .1s;border-radius:999px}
+.chip-expand-btn:hover{color:var(--ink);background:var(--paper-2)}
+
+/* ===== 设置页（教师 + 学生） ===== */
+.setup-page{min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:88px 48px 40px}
+.setup-box{width:960px;max-width:100%}
+.setup-section{background:var(--card);border:2px solid var(--line);border-radius:var(--br);padding:20px;margin-bottom:16px}
+.setup-section .ss-title{font-size:.92rem;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.setup-title{font-size:1.5rem;font-weight:900;margin:0 0 6px}
+.setup-desc{color:var(--ink-soft);font-size:.92rem;margin:0 0 24px;font-weight:500}
+.setup-actions{display:flex;gap:12px;margin-top:24px}
+.setup-actions .btn{flex:1;padding:14px 0;font-size:1rem}
+.setup-style-result{display:none;margin-top:10px;padding:12px 16px;background:var(--green-soft);border:2px solid var(--line);border-radius:var(--br);font-size:.85rem;line-height:1.6;font-weight:500}
+.setup-style-loading{display:none;align-items:center;gap:8px;padding:12px 0;font-size:.85rem;font-weight:600;color:var(--ink-soft)}
+.setup-style-loading.show{display:flex}
+.setup-style-loading .ssl-dot{width:8px;height:8px;background:var(--green);border-radius:50%;animation:shophop 1s infinite}
+@keyframes shophop{0%,80%,100%{transform:scale(1)}40%{transform:scale(1.4)}}
+.tone-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.tone-option{padding:10px 12px;border:2px solid var(--line);border-radius:var(--br);background:var(--card);cursor:pointer;font-size:.85rem;font-weight:700;text-align:center;transition:all .08s}
+.tone-option:hover{background:var(--paper-2)}
+.tone-option.selected{background:var(--green-soft);border-color:var(--line)}
+.tone-option:active{transform:translate(1px,1px)}
+.setup-row-two{display:flex;gap:16px;align-items:stretch}
+@media(max-width:700px){.setup-row-two{flex-direction:column}}
+/* ===== 学生管理 ===== */
+.student-select-row{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.student-select-row select{flex:1;padding:10px 14px;font-size:.95rem;border:2px solid var(--line);border-radius:var(--br);font-weight:600;font-family:var(--font-sans);background:var(--card)}
+.student-select-row select:focus{background:var(--honey-soft)}
+.student-select-row .btn{padding:9px 16px;font-size:.82rem;white-space:nowrap}
+.student-info{font-size:.82rem;color:var(--ink-soft);margin:-8px 0 16px;padding:10px 14px;background:var(--paper-2);border:1.5px solid var(--line);border-radius:var(--br);line-height:1.5;font-weight:500;display:none}
+.student-info.show{display:block}
+.user-menu{display:flex;align-items:center;gap:8px;font-size:.82rem;font-weight:700;color:var(--ink);cursor:pointer;padding:6px 12px;border:2px solid var(--line);border-radius:var(--br);background:var(--card);transition:transform .08s}
+.user-menu:active{transform:translate(1px,1px)}
+.user-menu .um-avatar{width:26px;height:26px;border-radius:50%;background:var(--green);border:2px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:900;color:var(--ink)}
+
+/* ===== 学生管理弹窗 ===== */
+.stu-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.stu-form-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px}
+.stu-form-grid input,.stu-form-grid select{width:100%;padding:10px 12px;font-size:.88rem;border:2px solid var(--line);border-radius:var(--br);outline:none;font-weight:500;font-family:var(--font-sans)}
+.stu-form-grid input:focus,.stu-form-grid select:focus{background:var(--honey-soft)}
+.stu-list{margin-top:4px}
+.stu-list-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border:2px solid var(--line);border-radius:var(--br);margin-bottom:8px;background:var(--card)}
+.stu-list-item .sli-info{flex:1;font-size:.85rem;font-weight:600}
+.stu-list-item .sli-info small{font-weight:500;color:var(--ink-soft);display:block;font-size:.75rem;margin-top:2px}
+.stu-list-item .sli-actions{display:flex;gap:6px}
+.stu-list-item .sli-actions button{font-size:.75rem;padding:4px 10px;border:1.5px solid var(--line);border-radius:6px;background:var(--card);cursor:pointer;font-weight:700;transition:transform .08s}
+.stu-list-item .sli-actions button:active{transform:translate(1px,1px)}
+.history-list{padding:2px 0}
+.history-item{padding:14px 16px;border:2px solid var(--line);border-radius:var(--br);margin-bottom:10px;background:var(--card);box-shadow:var(--shadow-sm);transition:transform .08s}
+.history-item:active{transform:translate(1px,1px)}
+.history-item:last-child{margin-bottom:0}
+.hi-header{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:.78rem;flex-wrap:wrap}
+.hi-date{font-weight:800;color:var(--ink)}
+.hi-tag{font-size:.7rem;font-weight:800;padding:2px 9px;border:1.5px solid var(--line);border-radius:999px}
+.hi-tag-pre{background:var(--sky)}
+.hi-tag-post{background:var(--green-soft)}
+.hi-tag-both{background:var(--honey-soft)}
+.hi-student{color:var(--ink-soft);font-weight:600;font-size:.75rem}
+.hi-preview{font-size:.82rem;color:var(--ink-soft);line-height:1.55;margin-bottom:8px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.hi-actions{display:flex;gap:6px}
+.hi-actions .btn{padding:5px 12px;font-size:.75rem}
+.history-empty{text-align:center;padding:60px 20px;color:var(--ink-soft);font-size:.88rem;font-weight:600;line-height:1.8}
+.history-empty .he-icon{font-size:2.2rem;margin-bottom:10px}
+.history-toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px}
+.history-toolbar .ht-count{font-size:.78rem;font-weight:700;color:var(--ink-soft)}
+.history-loading{text-align:center;padding:40px 0;color:var(--ink-soft);font-size:.85rem;font-weight:600}
+
+/* ===== 响应式 ===== */
+@media(max-width:1100px){
+  .mod-grid{grid-template-columns:1fr 1fr}
+  .flow-grid{grid-template-columns:1fr 1fr 1fr}
+  .flow-step:not(:last-child)::after{display:none}
+}
+@media(max-width:1024px){
+  .two-col{grid-template-columns:1fr}
+  .output-card{position:static}
+  .form-row{grid-template-columns:1fr 1fr}
+  .api-dropdown{width:min(440px,92vw);right:-10px}
+}
+@media(max-width:640px){
+  .section{padding:64px 20px}
+  .mod-grid,.flow-grid,.form-row{grid-template-columns:1fr}
+  .hero{padding:104px 20px 56px}
+  .gen-type{flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<!-- ===== 顶栏 ===== -->
+<nav class="top-nav" id="topNav">
+  <div class="logo">
+    <span class="mark">📒</span>
+    <span class="wm"><b>家教反馈助手</b><small>给家长确定感 · 不止汇报进度</small></span>
+  </div>
+  <div class="nav-right">
+    <button class="btn btn-sm btn-outline" onclick="showStudentSetup()" id="backToStudentsBtn" style="display:none">← 修改学生</button>
+    <button class="btn btn-sm btn-outline" onclick="showCover()" id="backToCoverBtn" style="display:none">← 封面</button>
+    <div style="position:relative">
+      <div class="user-menu" id="userMenu" onclick="toggleProfileMenu()" style="display:none">
+        <span class="um-avatar" id="userAvatar">张</span>
+        <span id="userMenuName">张老师</span>
+      </div>
+      <div class="api-dropdown" id="profileMenu" style="width:300px;right:0;">
+        <h3>🪞 我的画像</h3>
+        <div style="font-size:.82rem;line-height:1.7;font-weight:500;margin-bottom:10px;" id="profileMenuContent">—</div>
+        <div style="display:flex;gap:6px;padding-top:8px;border-top:2px solid var(--line);">
+          <button class="btn btn-sm btn-outline" onclick="showTeacherSetup();toggleProfileMenu()" style="flex:1;font-size:.78rem;">✍️ 修改画像</button>
+          <button class="btn btn-sm btn-outline" onclick="openStudentModal();toggleProfileMenu()" style="flex:1;font-size:.78rem;">👥 学生管理</button>
+        </div>
+      </div>
+    </div>
+    <div style="position:relative">
+      <button class="api-trigger" onclick="toggleApiDropdown()">
+        <span class="dot off" id="apiDot"></span>
+        <span id="apiLabel">AI 服务</span>
+        <span style="font-size:.65rem;margin-left:2px;">▾</span>
+      </button>
+      <div class="api-dropdown" id="apiDropdown">
+        <h3>🤖 AI 服务配置</h3>
+        <div class="provider-grid" id="providerGrid"></div>
+        <div class="form-compact">
+          <div><span class="api-label">类型</span><select id="apiType"><option value="openai">OpenAI 兼容</option><option value="anthropic">Anthropic</option></select></div>
+          <div><span class="api-label">模型</span><input type="text" id="apiModel" placeholder="deepseek-chat"></div>
+        </div>
+        <div style="margin-bottom:10px"><span class="api-label">API 地址</span><input type="text" id="apiBase" placeholder="https://api.deepseek.com"></div>
+        <div style="margin-bottom:12px"><span class="api-label">API Key</span><input type="password" id="apiKey" placeholder="sk-..."></div>
+        <div style="display:flex;gap:10px;">
+          <button class="btn btn-sm" style="flex:1;background:var(--green);box-shadow:var(--shadow-sm)" onclick="saveApiConfig()">💾 保存</button>
+          <button class="btn btn-sm btn-outline" onclick="testApiConnection()">📡 测试连接</button>
+        </div>
+        <div id="apiTestResult" style="margin-top:8px;font-size:.78rem;display:none;font-weight:700"></div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- ===== Toast ===== -->
+<div class="toast" id="toast"></div>
+
+<!-- ===== 封面页 ===== -->
+<div id="coverPage" onclick="startSetup()" style="cursor:pointer;background:#e4edf5;display:flex;align-items:center;justify-content:center;">
+  <img src="/static/cover.jpg" alt="家教反馈助手" style="max-width:100%;max-height:100vh;width:auto;height:auto;display:block;">
+</div>
+
+<!-- ===== 教师画像设置 ===== -->
+<div id="teacherSetup" style="display:none">
+  <section class="setup-page">
+    <div class="setup-box">
+      <div class="setup-progress">
+        <span class="sp-dot active"></span>
+        <span class="sp-dot"></span>
+      </div>
+
+      <div class="setup-title">✍️ 认识一下你</div>
+      <div class="setup-desc">先告诉我你是谁、你的风格，后面生成的反馈会更像你写的。</div>
+
+        <div class="setup-section">
+          <div class="ss-title">👤 你的称呼</div>
+          <input class="setup-field" id="tsName" placeholder="张老师" maxlength="20" oninput="saveSetupDraft()">
+        </div>
+
+        <div class="setup-section">
+          <div class="ss-title">📝 历史反馈（可选 · 提取用语习惯）</div>
+          <div style="font-size:.8rem;color:var(--ink-soft);margin-bottom:8px;line-height:1.5;">
+            上传你过去写的反馈，AI 会提取你的<strong>用语习惯</strong>（常用词、句式特点），生成时自动模仿。
+          </div>
+          <div class="upload-zone" id="tsUploadZone" style="margin-bottom:8px">
+            <input type="file" accept=".txt,.pdf,.docx,.doc" onchange="handleTsUpload(this)">
+            <div class="icon" id="tsUploadIcon">📂</div>
+            <div class="text" id="tsUploadText">上传历史反馈文档</div>
+            <div class="hint">或在下框粘贴</div>
+          </div>
+          <textarea id="tsHistoryInput" placeholder="把你过去写的反馈粘贴在这里……" style="width:100%;min-height:70px;padding:10px 12px;font-size:.85rem;border:2px solid var(--line);border-radius:var(--br);outline:none;font-family:var(--font-sans);font-weight:500;resize:vertical" oninput="saveSetupDraft()"></textarea>
+          <button class="btn btn-sm btn-outline" onclick="extractTsStyle()" id="tsExtractBtn" style="margin-top:8px">🎨 提取用语习惯</button>
+          <div class="setup-style-loading" id="tsStyleLoading"><span class="ssl-dot"></span> 分析中…</div>
+          <div class="setup-style-result" id="tsStyleResult"></div>
+        </div>
+
+        <div class="setup-row-two">
+          <div class="setup-section" style="flex:1.4;">
+            <div class="ss-title">🎨 整体语言风格</div>
+            <div style="font-size:.78rem;color:var(--ink-soft);margin-bottom:8px;">选择反馈的整体语气，也可以自定义。</div>
+            <div class="tone-grid">
+              <button class="tone-option selected" onclick="selectToneStyle('亲切温和')">😊 亲切温和</button>
+              <button class="tone-option" onclick="selectToneStyle('严谨专业')">📐 严谨专业</button>
+              <button class="tone-option" onclick="selectToneStyle('活泼自然')">🌟 活泼自然</button>
+              <button class="tone-option" onclick="selectToneStyle('温暖鼓励')">💚 温暖鼓励</button>
+            </div>
+            <input type="text" id="tsToneCustom" placeholder="或自定义风格" style="width:100%;padding:10px 12px;font-size:.85rem;border:2px solid var(--line);border-radius:var(--br);outline:none;font-family:var(--font-sans);font-weight:500;" oninput="onToneCustomInput();saveSetupDraft()">
+            <input type="hidden" id="tsToneValue" value="亲切温和">
+          </div>
+          <div class="setup-section" style="flex:1;display:flex;flex-direction:column;">
+            <div class="ss-title">📏 长度偏好</div>
+            <div style="font-size:.78rem;color:var(--ink-soft);margin-bottom:8px;">反馈大概写多长</div>
+            <div style="display:flex;gap:6px;flex:1;align-items:stretch;">
+              <button class="gen-type-btn" onclick="selectTsLength('简短')" style="flex:1;padding:10px 6px;"><div class="gt-icon">🔹</div><div class="gt-label">简短</div><div class="gt-desc">100-200字</div></button>
+              <button class="gen-type-btn selected" onclick="selectTsLength('适中')" style="flex:1;padding:10px 6px;"><div class="gt-icon">🔸</div><div class="gt-label">适中</div><div class="gt-desc">200-400字</div></button>
+              <button class="gen-type-btn" onclick="selectTsLength('详细')" style="flex:1;padding:10px 6px;"><div class="gt-icon">🔶</div><div class="gt-label">详细</div><div class="gt-desc">400-600字</div></button>
+            </div>
+          </div>
+        </div>
+
+        <div id="tsError" style="color:#C0392B;font-size:.82rem;font-weight:600;margin-bottom:10px;display:none"></div>
+
+        <div class="setup-actions">
+          <button class="btn btn-primary" onclick="nextToStudents()">下一步 →</button>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ===== 学生画像设置 ===== -->
+<div id="studentSetup" style="display:none">
+  <section class="setup-page">
+    <div class="setup-box">
+      <div class="setup-progress">
+        <span class="sp-dot done"></span>
+        <span class="sp-dot active"></span>
+      </div>
+
+      <div class="setup-title">👨‍🎓 添加学生</div>
+      <div class="setup-desc">把你现在教的学生加进来，之后选人就能自动填信息、按学生看历史。</div>
+
+      <div class="setup-section">
+        <div class="ss-title">➕ 添加学生</div>
+        <div class="stu-form-grid">
+          <input type="text" id="ssStuName" placeholder="学生姓名">
+          <select id="ssStuGrade">
+            <option value="">年级</option>
+            <optgroup label="小学"><option>小学一年级</option><option>小学二年级</option><option>小学三年级</option><option>小学四年级</option><option>小学五年级</option><option>小学六年级</option></optgroup>
+            <optgroup label="初中"><option>初一</option><option>初二</option><option>初三</option></optgroup>
+            <optgroup label="高中"><option selected>高一</option><option>高二</option><option>高三</option></optgroup>
+          </select>
+          <input type="text" id="ssStuContent" placeholder="教学内容（如：全科辅导、侧重英语口语）">
+          <input type="text" id="ssStuTraits" placeholder="性格描述（如：偏内向、有耐心、容易急躁、求知欲强）" style="margin-top:6px;">
+        </div>
+        <button class="btn btn-sm btn-mint" onclick="addSsStudent()">+ 添加此学生</button>
+      </div>
+
+      <div class="stu-list" id="ssStuList"></div>
+
+      <div class="setup-actions">
+        <button class="btn btn-outline" onclick="showTeacherSetup()">← 上一步</button>
+        <button class="btn btn-primary" onclick="finishSetup()">✅ 完成，进入工作台</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ===== MAIN 工具 ===== -->
+<div class="main-wrap" id="mainTool">
+  <div class="container">
+    <div class="tool-head">
+      <h2>✍️ 生成反馈</h2>
+      <p>左侧填资料，右侧出反馈——课后反馈默认按「阶段 · 状态 · 洞察 · 推进 · 配合」结构生成。</p>
+    </div>
+    <div class="two-col">
+
+      <!-- LEFT -->
+      <div class="col-left">
+        <!-- 学生选择 + 日期 -->
+        <div class="card" style="padding:16px 20px">
+          <div class="student-select-row">
+            <select id="studentSelector" onchange="onStudentChange()" style="margin-bottom:0">
+              <option value="">— 选择学生 —</option>
+            </select>
+            <button class="btn btn-sm btn-outline" onclick="openStudentModal()">管理</button>
+            <button class="btn btn-sm btn-outline" onclick="refreshStudents()">🔄</button>
+          </div>
+          <div class="student-info" id="studentInfo"></div>
+          <input type="hidden" id="studentName" value="">
+          <input type="hidden" id="grade" value="高一">
+          <input type="hidden" id="subjectContent" value="">
+          <div style="margin-top:8px;"><label style="font-size:.82rem;font-weight:800;">上课日期</label><input type="date" id="dateInput" style="margin-top:4px;"></div>
+        </div>
+
+        <!-- 今日工作类型 -->
+        <div class="card" style="padding:16px 20px">
+          <div class="card-title" style="font-size:1rem;margin:0 0 8px">📋 今日工作 <span class="badge req">必选</span></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="gen-type-btn selected" onclick="selectWorkType('上新课')" id="wt-new" style="flex:1;padding:12px 8px">
+              <div class="gt-icon">📖</div><div class="gt-label">上新课</div><div class="gt-desc" style="font-size:.68rem">按讲义授课</div>
+            </button>
+            <button class="gen-type-btn" onclick="selectWorkType('复习')" id="wt-review" style="flex:1;padding:12px 8px">
+              <div class="gt-icon">🔄</div><div class="gt-label">复习</div><div class="gt-desc" style="font-size:.68rem">巩固已学内容</div>
+            </button>
+            <button class="gen-type-btn" onclick="selectWorkType('陪写作业')" id="wt-hw" style="flex:1;padding:12px 8px">
+              <div class="gt-icon">✏️</div><div class="gt-label">陪写作业</div><div class="gt-desc" style="font-size:.68rem">不需要讲义</div>
+            </button>
+          </div>
+          <input type="hidden" id="workType" value="上新课">
+        </div>
+
+        <!-- 讲义 -->
+        <div class="card" id="lectureCard">
+          <div class="card-title"><span class="step-chip">2</span> 讲义内容 <span class="badge req2">必填</span></div>
+          <div class="form-group">
+            <div class="upload-zone" id="uploadZone">
+              <input type="file" accept=".pdf,.docx,.doc" onchange="handleFileUpload(this)" id="fileInput">
+              <div class="icon" id="uploadZoneIcon">📂</div>
+              <div class="text" id="uploadZoneText">上传 PDF 或 Word</div>
+              <div class="hint" id="uploadZoneHint">或直接在下框粘贴文字</div>
+            </div>
+            <div class="upload-status" id="uploadStatus">
+              <span>✅</span><span id="uploadFileName"></span>
+              <span style="color:var(--ink-soft);font-size:.78rem;" id="uploadFileInfo"></span>
+              <button class="upload-remove" id="uploadRemoveBtn" onclick="clearUpload()" style="display:none">✕</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <textarea class="lecture-input" id="lectureContent" placeholder="粘贴本节课的讲义内容……越具体，生成的反馈越有颗粒度。"></textarea>
+          </div>
+        </div>
+
+        <!-- 完成情况（仅陪写作业时显示） -->
+        <div class="card" id="hwCard" style="display:none">
+          <div class="card-title"><span class="step-chip">2</span> ✏️ 作业完成情况 <span class="badge req">必填</span></div>
+          <div class="form-group">
+            <label>作业内容 & 完成情况</label>
+            <textarea class="lecture-input" id="hwContent" placeholder="例如：&#10;• 数学试卷一张 — 全部完成，最后两道大题不会做&#10;• 英语单词听写 — 错了5个，已订正&#10;• 语文阅读理解 — 完成3篇，准确率80%&#10;&#10;写清楚做了什么、完成度、遇到的问题。"></textarea>
+          </div>
+        </div>
+
+        <!-- 课堂表现（逐行可折叠） -->
+        <div class="card" id="perfCard">
+          <div class="card-title"><span class="step-chip">3</span> 课堂表现 <span class="sel-sum" id="perfSum"></span> <span class="badge opt">选填</span></div>
+
+          <!-- 积极表现 -->
+          <div class="perf-section" data-section="pos">
+            <div class="perf-label perf-collapse-trigger" onclick="togglePerfSection('pos')">
+              <span>😊 积极表现</span>
+              <span class="count" id="posCount">已选 0 项</span>
+              <span class="perf-chev" id="posChev">▾</span>
+            </div>
+            <div class="chip-group" id="posChips"></div>
+            <div class="perf-more-wrap" id="posChipsMore">
+              <div class="chip-group" id="posChipsMoreInner"></div>
+              <div class="chip-add">
+                <input type="text" id="posCustomInput" placeholder="自定义…" maxlength="30">
+                <button onclick="addCustomChip('pos')">+ 添加</button>
+              </div>
+            </div>
+            <div class="chip-expand-row"><button class="chip-expand-btn" onclick="togglePerfSection('pos')" id="posToggleBtn">展开更多 ▾</button></div>
+          </div>
+
+          <!-- 待改进 -->
+          <div class="perf-section" data-section="neg">
+            <div class="perf-label perf-collapse-trigger" onclick="togglePerfSection('neg')">
+              <span>😅 待改进</span>
+              <span class="count" id="negCount">已选 0 项</span>
+              <span class="perf-chev" id="negChev">▾</span>
+            </div>
+            <div class="chip-group" id="negChips"></div>
+            <div class="perf-more-wrap" id="negChipsMore">
+              <div class="chip-group" id="negChipsMoreInner"></div>
+              <div class="chip-add">
+                <input type="text" id="negCustomInput" placeholder="自定义…" maxlength="30">
+                <button onclick="addCustomChip('neg')">+ 添加</button>
+              </div>
+            </div>
+            <div class="chip-expand-row"><button class="chip-expand-btn" onclick="togglePerfSection('neg')" id="negToggleBtn">展开更多 ▾</button></div>
+          </div>
+
+          <div class="form-group" style="margin-top:6px;margin-bottom:0;">
+            <label>📝 补充说明</label>
+            <textarea id="extraNotes" placeholder="例如：这次重点想让家长配合每天默写 10 分钟……"></textarea>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><span class="step-chip">4</span> 生成设置 <span class="badge last">最后一步</span></div>
+          <div class="gen-type">
+            <button class="gen-type-btn selected" data-type="post" onclick="selectGenType('post')">
+              <div class="gt-icon">📋</div>
+              <div class="gt-label">课后反馈</div>
+              <div class="gt-desc">推荐</div>
+            </button>
+          </div>
+          <button class="btn btn-primary" onclick="generateFeedback()">✨ 一键生成</button>
+          <div style="margin-top:10px;font-size:.75rem;color:var(--ink-soft);font-weight:600;text-align:center;">💡 每次生成自动切换写作角度，长期使用不雷同</div>
+        </div>
+      </div>
+
+      <!-- RIGHT -->
+      <div class="col-right">
+        <div class="card output-card">
+          <div class="output-sticky">
+            <div class="output-head">
+              <span class="oh-title"><span class="live"></span> 生成结果</span>
+              <div class="oh-actions">
+                <button class="btn btn-sm btn-outline" onclick="copyCurrent()">📋 复制</button>
+                <button class="btn btn-sm btn-mint" onclick="exportCurrentAsImage()">🖼️ 长图</button>
+                <button class="btn btn-sm btn-yellow" onclick="clearCurrent()">🗑️ 清空</button>
+              </div>
+            </div>
+
+            <div class="framework-legend" id="frameworkLegend">
+              <span class="fl-title">课后反馈结构</span>
+              <span class="tag">🎓 当前阶段</span><span class="tag">📊 学习状态</span><span class="tag">🔬 专业洞察</span><span class="tag">🧭 下节课预告</span>
+            </div>
+
+            <div class="output-surface">
+              <div class="spinner" id="loadingSpinner">
+                <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+                <span style="font-size:.9rem;">AI 生成中…</span>
+              </div>
+
+              <div class="output-tabs">
+                <button class="output-tab active" data-otab="post" onclick="switchOutputTab('post')">📋 课后反馈</button>
+                <button class="output-tab" data-otab="history" onclick="switchOutputTab('history')">📚 历史</button>
+              </div>
+
+              <div class="output-area">
+                <div class="output-content active" id="oc-post">
+                  <div class="output-editable" id="outputPost" contenteditable="true"></div>
+                </div>
+                <div class="output-content" id="oc-history">
+                  <div class="history-loading" id="historyLoading">⏳ 加载中…</div>
+                  <div class="history-empty" id="historyEmpty" style="display:none">
+                    <div class="he-icon">📭</div>
+                    还没有历史记录<br>生成反馈后会自动保存在这里。
+                  </div>
+                  <div class="history-toolbar" id="historyToolbar" style="display:none">
+                    <span class="ht-count" id="historyCount"></span>
+                    <button class="btn btn-sm btn-outline" onclick="clearAllHistory()" style="color:#C0392B;border-color:#C0392B;">🗑️ 清空全部</button>
+                  </div>
+                  <div class="history-list" id="historyList"></div>
+                </div>
+              </div>
+
+              <div class="output-toolbar">
+                <span style="font-size:.76rem;color:var(--ink-soft);font-weight:600;">💡 点击内容可直接编辑，再复制或导出</span>
+                <div style="display:flex;gap:6px;width:100%;margin-top:8px;">
+                  <input type="text" id="refineInput" placeholder="告诉 AI 怎么改（如：再简短一些、语气更亲切、把进步说具体点）" style="flex:1;font-size:.85rem;padding:9px 12px;border:2px solid var(--line);border-radius:var(--br);outline:none;">
+                  <button class="btn btn-sm btn-outline" onclick="refineFeedback()" id="refineBtn">🔄 AI 修改</button>
+                </div>
+                <div id="refineLoading" style="display:none;font-size:.78rem;font-weight:600;color:var(--ink-soft);margin-top:4px;">⏳ AI 正在修改…</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ===== 学生管理弹窗 ===== -->
+<div class="modal-overlay" id="studentModal">
+  <div class="modal-box" style="max-width:520px;text-align:left">
+    <h3 style="font-weight:900;font-size:1.15rem;margin:0 0 16px;">👨‍🎓 管理学生</h3>
+    <div class="stu-form-grid">
+      <input type="text" id="stuFormName" placeholder="姓名">
+      <select id="stuFormGrade">
+        <option value="">年级</option>
+        <optgroup label="小学"><option>小学一年级</option><option>小学二年级</option><option>小学三年级</option><option>小学四年级</option><option>小学五年级</option><option>小学六年级</option></optgroup>
+        <optgroup label="初中"><option>初一</option><option>初二</option><option>初三</option></optgroup>
+        <optgroup label="高中"><option selected>高一</option><option>高二</option><option>高三</option></optgroup>
+      </select>
+    </div>
+    <div class="form-group" style="margin-bottom:12px">
+      <input type="text" id="stuFormContent" placeholder="教学内容（如：全科辅导、英语口语、作业辅导）" style="width:100%">
+    </div>
+    <button class="btn btn-sm btn-mint" onclick="addStudentFromForm()" style="margin-bottom:12px">+ 添加学生</button>
+    <div class="stu-list" id="stuManageList"></div>
+    <div class="modal-actions" style="margin-top:12px">
+      <button class="btn btn-outline" onclick="closeStudentModal()">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 图片预览弹窗 ===== -->
+<div class="modal-overlay" id="imageModal">
+  <div class="modal-box">
+    <img id="modalImage" src="" alt="预览">
+    <div class="modal-actions">
+      <button class="btn btn-primary" style="width:auto;" onclick="downloadImage()">⬇️ 下载图片</button>
+      <button class="btn btn-outline" onclick="closeModal()">关闭</button>
+    </div>
+  </div>
+</div>
+
+<script>
+if(!localStorage.getItem("fresh_clean")){localStorage.removeItem("tsDraft");localStorage.removeItem("tutor_style_instruction");localStorage.removeItem("tutor_device_id");localStorage.setItem("fresh_clean","1");}
+// ===== Providers =====
+const PROVIDERS = [
+  {id:'deepseek', label:'DeepSeek', type:'openai', base:'https://api.deepseek.com', model:'deepseek-chat'},
+  {id:'kimi',     label:'Kimi',     type:'openai', base:'https://api.moonshot.cn', model:'moonshot-v1-8k'},
+  {id:'tongyi',   label:'通义千问', type:'openai', base:'https://dashscope.aliyuncs.com', model:'qwen-turbo'},
+  {id:'glm',      label:'GLM-4',    type:'openai', base:'https://open.bigmodel.cn/api/paas/v4', model:'glm-4-flash'},
+  {id:'openai',   label:'OpenAI',   type:'openai', base:'https://api.openai.com', model:'gpt-4o-mini'},
+  {id:'claude',   label:'Claude',   type:'anthropic', base:'https://api.anthropic.com', model:'claude-sonnet-4-20250514'},
+  {id:'doubao',   label:'豆包',     type:'openai', base:'https://ark.cn-beijing.volces.com/api/v3', model:'ep-xxxxxxxx'},
+  {id:'baidu',    label:'文心一言', type:'openai', base:'https://aip.baidubce.com', model:'ernie-4.0'},
+  {id:'qwen2',    label:'通义千问2',type:'openai', base:'https://dashscope.aliyuncs.com/compatible-mode/v1', model:'qwen-plus'},
+  {id:'step',     label:'阶跃星辰', type:'openai', base:'https://api.stepfun.com/v1', model:'step-1-flash'},
+  {id:'deepinfra',label:'DeepInfra',type:'openai', base:'https://api.deepinfra.com/v1/openai', model:'meta-llama/Llama-4-Maverick-17B'},
+  {id:'groq',     label:'Groq',     type:'openai', base:'https://api.groq.com/openai/v1', model:'llama-4-scout-17b'},
+];
+
+// ===== Performance =====
+const POSITIVE_CHIPS = [
+  '👍 认真听讲','✋ 积极互动','📝 笔记认真','✅ 做题准确率高','💪 专注力好','🎯 理解力强','📈 进步明显','🌟 主动提问',
+  '⚡ 反应迅速','🤝 配合度高','🧠 举一反三','🎨 思维活跃','📊 逻辑清晰','🔍 审题仔细','💡 解题有创意','📚 预习充分',
+  '⏰ 时间管理好','🔄 善于总结','💬 表达清晰','🎵 语感好','🔬 探究精神强','📐 作图规范','🗣️ 朗读流利','✏️ 书写工整',
+  '🎯 目标感强','🧩 拼读能力强',
+];
+const NEGATIVE_CHIPS = [
+  '😴 注意力分散','💬 讲话走神','📱 分心玩手机','🐢 做题速度慢','❌ 粗心错误多','😫 犯困没精神','🔄 需多次提醒','📖 课前准备不足',
+  '🤔 旧知遗忘','✍️ 笔记不认真','😰 畏难情绪','🔇 不爱开口','📝 书写潦草','🤯 计算易出错','⏳ 拖延严重','📖 阅读理解弱',
+  '🔢 公式记不牢','🗣️ 发音不标准','📋 审题不仔细','📉 成绩波动大','🔗 知识迁移弱','📐 作图不规范','🎯 答题没条理','📚 背诵不熟练',
+  '💭 表达不清晰','🧮 心算能力弱',
+];
+
+// ===== State =====
+let currentGenType='post',currentOutputTab='post',capturedImageData=null;
+let customChips={pos:[],neg:[]};
+let sectionExpanded={pos:false,neg:false};
+let currentUser=null;
+let currentStudentId='';
+let obLength='适中';
+let obStudents=[];
+
+// ===== Device ID =====
+function getDeviceId(){let d=localStorage.getItem('tutor_device_id');if(!d){d='u'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);localStorage.setItem('tutor_device_id',d);}return d;}
+
+// ===== Init =====
+document.addEventListener('DOMContentLoaded', async ()=>{
+  document.getElementById('dateInput').value=new Date().toISOString().split('T')[0];
+  renderProviders();renderChips('posChips',POSITIVE_CHIPS,'pos');renderChips('negChips',NEGATIVE_CHIPS,'neg');
+  updatePerfCounts();loadApiConfig();
+  // 尝试自动登录
+    try{
+      const r=await fetch('/api/user/current',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({device_id:getDeviceId()})});
+      currentUser=await r.json();
+      if(currentUser.name&&currentUser.name!=='用户'&&currentUser.students.length>0&&currentUser.style_instruction){
+        enterTool(currentUser);
+      }else{
+        showCover();
+      }
+    }catch(e){showCover();}
+  });
+
+// ===== 页面切换 =====
+function hideAllPages(){
+  ['coverPage','teacherSetup','studentSetup','mainTool'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){
+      if(id==='mainTool'){el.classList.remove('show');}else{el.style.display='none';}
+    }
+  });
+  document.body.classList.remove('tool-mode');
+}
+function showCover(){
+  hideAllPages();
+  document.getElementById('topNav').style.display='none';
+  document.getElementById('coverPage').style.display='block';
+  document.getElementById('backToCoverBtn').style.display='none';
+  window.scrollTo({top:0});
+}
+function showTeacherSetup(){
+  hideAllPages();
+  document.getElementById('topNav').style.display='flex';
+  document.getElementById('teacherSetup').style.display='block';
+  document.getElementById('backToCoverBtn').style.display='inline-flex';
+  document.getElementById('backToStudentsBtn').style.display='none';
+  document.getElementById('tsName').focus();
+  loadSetupDraft();
+  if(currentUser&&currentUser.style_instruction){
+    document.getElementById('tsStyleResult').textContent=currentUser.style_instruction;
+    document.getElementById('tsStyleResult').style.display='block';
+    document.getElementById('tsExtractBtn').textContent='✅ 已提取';
+  }
+  window.scrollTo({top:0});
+}
+function showStudentSetup(){
+  hideAllPages();
+  document.getElementById('topNav').style.display='flex';
+  document.getElementById('studentSetup').style.display='block';
+  document.getElementById('backToCoverBtn').style.display='inline-flex';
+  document.getElementById('backToStudentsBtn').style.display='none';
+  document.getElementById('ssStuName').focus();
+  refreshSsList();
+  window.scrollTo({top:0});
+}
+
+// ===== 封面 → 设置 =====
+let tsLength='适中';
+function startSetup(){
+  if(currentUser&&currentUser.name&&currentUser.name!=='用户'){
+    showTeacherSetup();
+  }else{
+    document.getElementById('tsName').value='';
+    document.getElementById('tsHistoryInput').value='';
+    showTeacherSetup();
+  }
+}
+function selectTsLength(v){tsLength=v;document.querySelectorAll('#teacherSetup .setup-row-two .gen-type-btn').forEach(b=>b.classList.toggle('selected',b.querySelector('.gt-label').textContent.trim()===v));saveSetupDraft();}
+function selectToneStyle(v){
+  document.querySelectorAll('#teacherSetup .tone-option').forEach(b=>b.classList.toggle('selected',b.textContent.includes(v)));
+  document.getElementById('tsToneValue').value=v;
+  document.getElementById('tsToneCustom').value='';
+  saveSetupDraft();
+}
+function onToneCustomInput(){
+  const v=document.getElementById('tsToneCustom').value.trim();
+  if(v){
+    document.querySelectorAll('#teacherSetup .tone-option').forEach(b=>b.classList.remove('selected'));
+    document.getElementById('tsToneValue').value=v;
+  }
+  saveSetupDraft();
+}
+function saveSetupDraft(){
+  try{localStorage.setItem('tsDraft',JSON.stringify({
+    name:document.getElementById('tsName').value,
+    bio:'',
+    history:document.getElementById('tsHistoryInput').value,
+    tone:document.getElementById('tsToneValue').value,
+    length:tsLength
+  }));}catch(e){}
+}
+function loadSetupDraft(){
+  try{
+    const d=JSON.parse(localStorage.getItem('tsDraft'));
+    if(d){
+      document.getElementById('tsName').value=d.name||'';
+      document.getElementById('tsHistoryInput').value=d.history||'';
+      if(d.tone)document.getElementById('tsToneValue').value=d.tone;
+      if(d.length)tsLength=d.length;
+    }
+  }catch(e){}
+}
+async function nextToStudents(){
+  const name=document.getElementById('tsName').value.trim();
+  if(!name){document.getElementById('tsError').textContent='请输入你的称呼';document.getElementById('tsError').style.display='block';return;}
+  document.getElementById('tsError').style.display='none';
+  const tone=document.getElementById('tsToneValue').value;
+  try{
+    const r=await fetch('/api/user/current',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({device_id:getDeviceId(),name})});
+    currentUser=await r.json();
+    await fetch('/api/user/profile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({device_id:getDeviceId(),preferences:{length:tsLength,tone:tone}})});
+    showStudentSetup();
+  }catch(e){document.getElementById('tsError').textContent='保存失败，请重试';document.getElementById('tsError').style.display='block';}
+}
+function handleTsUpload(input){
+  if(!input.files||!input.files[0])return;
+  const file=input.files[0];const ext=file.name.split('.').pop().toLowerCase();
+  if(!['txt','pdf','docx','doc'].includes(ext)){showToast('⚠️ 仅支持 TXT/PDF/DOCX');return;}
+  document.getElementById('tsUploadIcon').textContent='⏳';
+  const fd=new FormData();fd.append('file',file);
+  fetch('/upload',{method:'POST',body:fd}).then(r=>r.json()).then(j=>{
+    if(j.error){showToast('❌ '+j.error);document.getElementById('tsUploadIcon').textContent='📂';return;}
+    document.getElementById('tsHistoryInput').value=j.text;
+    document.getElementById('tsUploadIcon').textContent='✅';document.getElementById('tsUploadText').textContent='已加载: '+file.name;
+    showToast('✅ 已加载');
+  }).catch(()=>{showToast('❌ 上传失败');document.getElementById('tsUploadIcon').textContent='📂';});
+}
+
+async function extractTsStyle(){
+  const history=document.getElementById('tsHistoryInput').value.trim()||'';
+  if(!history){showToast('⚠️ 粘贴或上传历史反馈');return;}
+  const cfg=getApiConfig();if(!cfg.api_key){showToast('⚠️ 先配置 API');return;}
+  document.getElementById('tsStyleLoading').classList.add('show');
+  try{
+    const r=await fetch('/analyze-style',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({history,...cfg})});
+    const j=await r.json();
+    if(j.error){showToast('❌ '+j.error);return;}
+    const style=j.text.trim();
+    await fetch('/api/user/profile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({device_id:getDeviceId(),style_instruction:style})});
+    if(currentUser)currentUser.style_instruction=style;
+    document.getElementById('tsStyleResult').textContent=style;
+    document.getElementById('tsStyleResult').style.display='block';
+    document.getElementById('tsExtractBtn').textContent='✅ 已提取';
+    saveSetupDraft();
+    showToast('✅ 用语习惯已保存');
+  }catch(e){showToast('❌ 提取失败');}
+  finally{document.getElementById('tsStyleLoading').classList.remove('show');}
+}
+async function addSsStudent(){
+  const name=document.getElementById('ssStuName').value.trim();
+  if(!name){showToast('⚠️ 输入学生姓名');return;}
+  try{
+    const content=document.getElementById('ssStuContent').value.trim();
+    const traits=document.getElementById('ssStuTraits').value.trim();
+    const r=await fetch('/api/user/students',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({device_id:getDeviceId(),name,grade:document.getElementById('ssStuGrade').value,notes:content+(traits?' [性格: '+traits+']':'')})});
+    const stu=await r.json();
+    if(stu.error){showToast('❌ '+stu.error);return;}
+    document.getElementById('ssStuName').value='';document.getElementById('ssStuContent').value='';document.getElementById('ssStuTraits').value='';
+    refreshSsList();
+    showToast('✅ 已添加 '+stu.name);
+  }catch(e){showToast('❌ 添加失败');}
+}
+async function refreshSsList(){
+  try{
+    const r=await fetch('/api/user/students?device_id='+getDeviceId());
+    const students=await r.json();
+    document.getElementById('ssStuList').innerHTML=students.length?
+      students.map(s=>'<div class="stu-list-item"><div class="sli-info">'+s.name+'<small>'+(s.grade||'')+(s.notes?' · '+s.notes:'')+'</small></div><div class="sli-actions"><button class="sli-del" onclick="deleteSsStudent(\''+s.id+'\')">&times;</button></div></div>').join(''):
+      '<div style="text-align:center;padding:20px;color:var(--ink-soft);font-size:.85rem">还没添加学生</div>';
+  }catch(e){}
+}
+async function deleteSsStudent(id){
+  try{
+    await fetch('/api/user/students/'+id+'?device_id='+getDeviceId(),{method:'DELETE'});
+    refreshSsList();showToast('OK 已删除');
+  }catch(e){showToast('ERROR 删除失败');}
+}
+async function finishSetup(){
+  const tone=document.getElementById('tsToneValue')?document.getElementById('tsToneValue').value:'亲切温和';
+  try{await fetch('/api/user/profile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({device_id:getDeviceId(),preferences:{length:tsLength,tone:tone}})});}catch(e){}
+  try{
+    const r=await fetch('/api/user/current',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({device_id:getDeviceId()})});
+    currentUser=await r.json();
+  }catch(e){}
+  enterTool(currentUser);
+}
+function enterTool(user){
+  currentUser=user||currentUser;
+  hideAllPages();
+  document.getElementById('topNav').style.display='flex';
+  document.getElementById('mainTool').classList.add('show');
+  document.getElementById('backToCoverBtn').style.display='inline-flex';
+  document.getElementById('backToStudentsBtn').style.display='inline-flex';
+  document.body.classList.add('tool-mode');
+  window.scrollTo({top:0});
+  if(currentUser){
+    const menu=document.getElementById('userMenu');menu.style.display='flex';
+    document.getElementById('userAvatar').textContent=currentUser.name[0];
+    document.getElementById('userMenuName').textContent=currentUser.name;
+  }
+  refreshStudents();
+}
+function toggleProfileMenu(){
+  const menu=document.getElementById('profileMenu');
+  menu.classList.toggle('open');
+  if(menu.classList.contains('open')&&currentUser){
+    const parts=[];
+    if(currentUser.name)parts.push('<b>称呼：</b>'+currentUser.name);
+    if(currentUser.preferences&&currentUser.preferences.tone)parts.push('<b>整体风格：</b>'+currentUser.preferences.tone);
+    if(currentUser.preferences&&currentUser.preferences.length)parts.push('<b>反馈长度：</b>'+currentUser.preferences.length);
+    if(currentUser.style_instruction)parts.push('<b>用语习惯：</b>'+currentUser.style_instruction.slice(0,80)+'…');
+    document.getElementById('profileMenuContent').innerHTML=parts.join('<br>')||'—';
+  }
+}
+function togglePerfSection(section){
+  sectionExpanded[section]=!sectionExpanded[section];
+  const more=document.getElementById(section+'ChipsMore');
+  const chev=document.getElementById(section+'Chev');
+  const btn=document.getElementById(section+'ToggleBtn');
+  if(sectionExpanded[section]){
+    more.classList.add('open');
+    if(chev)chev.classList.add('open');
+    if(btn)btn.textContent='收起 ▴';
+  }else{
+    more.classList.remove('open');
+    if(chev)chev.classList.remove('open');
+    if(btn)btn.textContent='展开更多 ▾';
+  }
+}
+
+// ===== 上传拖拽 =====
+window.addEventListener('load',()=>{
+  const z=document.getElementById('uploadZone');
+  if(z){
+    z.addEventListener('dragover',e=>{e.preventDefault();z.classList.add('dragover');});
+    z.addEventListener('dragleave',()=>z.classList.remove('dragover'));
+    z.addEventListener('drop',e=>{e.preventDefault();z.classList.remove('dragover');if(e.dataTransfer.files.length)handleFile(e.dataTransfer.files[0]);});
+  }
+});
+
+// ===== API =====
+function renderProviders(){document.getElementById('providerGrid').innerHTML=PROVIDERS.map(p=>`<button class="provider-btn" onclick="applyProvider('${p.id}')">${p.label}</button>`).join('');}
+function applyProvider(id){const p=PROVIDERS.find(x=>x.id===id);if(!p)return;document.getElementById('apiType').value=p.type;document.getElementById('apiBase').value=p.base;document.getElementById('apiModel').value=p.model;document.getElementById('apiKey').focus();}
+function toggleApiDropdown(){document.getElementById('apiDropdown').classList.toggle('open');}
+document.addEventListener('click',e=>{const dd=document.getElementById('apiDropdown');const t=e.target.closest('.api-trigger');if(!e.target.closest('.api-dropdown')&&!t)dd.classList.remove('open');});
+function saveApiConfig(){const c={api_type:document.getElementById('apiType').value,api_base:document.getElementById('apiBase').value.trim(),api_model:document.getElementById('apiModel').value.trim(),api_key:document.getElementById('apiKey').value.trim()};localStorage.setItem('tutor_api_config',JSON.stringify(c));updateApiIndicator(c);showToast('💾 已保存');document.getElementById('apiDropdown').classList.remove('open');}
+function loadApiConfig(){try{const r=localStorage.getItem('tutor_api_config');if(r){const c=JSON.parse(r);document.getElementById('apiType').value=c.api_type||'openai';document.getElementById('apiBase').value=c.api_base||'';document.getElementById('apiModel').value=c.api_model||'';document.getElementById('apiKey').value=c.api_key||'';updateApiIndicator(c);}}catch(e){}}
+function updateApiIndicator(c){const d=document.getElementById('apiDot');const l=document.getElementById('apiLabel');if(c&&c.api_key&&c.api_base&&c.api_model){d.className='dot on';l.textContent=c.api_base.replace(/^https?:\/\//,'').split('/')[0]+' › '+c.api_model;}else{d.className='dot off';l.textContent='AI 服务';}}
+function getApiConfig(){try{const r=localStorage.getItem('tutor_api_config');if(r)return JSON.parse(r);}catch(e){}return{api_type:document.getElementById('apiType').value,api_base:document.getElementById('apiBase').value.trim(),api_model:document.getElementById('apiModel').value.trim(),api_key:document.getElementById('apiKey').value.trim()};}
+async function testApiConnection(){const c=getApiConfig();if(!c.api_key||!c.api_base||!c.api_model){showToast('⚠️ 请完整填写');return;}const el=document.getElementById('apiTestResult');el.style.display='block';el.innerHTML='⏳ 测试中…';el.style.color='var(--ink-soft)';try{const r=await fetch('/generate/pre',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({lecture:'回复"连接成功"四个字',student_name:'测试',grade:'高一',date:new Date().toISOString().split('T')[0],...c})});const j=await r.json();el.innerHTML=j.error?'❌ '+j.error:'✅ 连接成功！';el.style.color=j.error?'#C0392B':'var(--green)';}catch(e){el.innerHTML='❌ 错误：'+e.message;el.style.color='#C0392B';}}
+
+// ===== Chips =====
+const CHIPS_PREVIEW = 5;
+
+function renderChips(containerId, items, cls){
+  const container=document.getElementById(containerId);
+  const moreWrap=document.getElementById(containerId+'More');
+  const moreInner=document.getElementById(containerId+'MoreInner');
+  if(!container)return;
+  const visible=items.slice(0,CHIPS_PREVIEW);
+  const hidden=items.slice(CHIPS_PREVIEW);
+  container.innerHTML=visible.map(ch=>`<span class="chip ${cls}" onclick="toggleChip(this)">${ch}</span>`).join('');
+  // custom chips in main area (selected ones stay visible)
+  if(customChips[cls]){customChips[cls].forEach((ch,i)=>{const el=document.createElement('span');el.className=`chip ${cls} custom selected`;el.innerHTML=`${ch} <span class="remove-chip" onclick="event.stopPropagation();removeCustomChip('${cls}',${i})">×</span>`;el.onclick=function(){toggleChip(this);};container.appendChild(el);});}
+  // hidden predefined chips
+  if(moreInner)moreInner.innerHTML=hidden.map(ch=>`<span class="chip ${cls}" onclick="toggleChip(this)">${ch}</span>`).join('');
+  // toggle button visibility
+  const btn=document.getElementById(cls+'ToggleBtn');
+  const chev=document.getElementById(cls+'Chev');
+  const hasHidden=hidden.length>0;
+  if(btn)btn.style.display=hasHidden?'inline-block':'none';
+  if(chev)chev.style.display=hasHidden?'inline':'none';
+  // if expanded, show the wrapper
+  if(sectionExpanded[cls]&&moreWrap)moreWrap.classList.add('open');
+}
+function toggleChip(el){el.classList.toggle('selected');updatePerfCounts();}
+function updatePerfCounts(){const np=document.querySelectorAll('#posChips .chip.selected, #posChipsMore .chip.selected').length,nn=document.querySelectorAll('#negChips .chip.selected, #negChipsMore .chip.selected').length;document.getElementById('posCount').textContent='已选 '+np+' 项';document.getElementById('negCount').textContent='已选 '+nn+' 项';const sum=document.getElementById('perfSum');if(sum)sum.textContent=(np+nn)?('已标记 '+(np+nn)+' 项'):'';}
+function getSelectedPerformance(){const p=[...document.querySelectorAll('#posChips .chip.selected, #posChipsMore .chip.selected')].map(c=>c.textContent.trim().replace('×','').trim());const n=[...document.querySelectorAll('#negChips .chip.selected, #negChipsMore .chip.selected')].map(c=>c.textContent.trim().replace('×','').trim());const r=[];if(p.length)r.push('积极表现：'+p.join('、'));if(n.length)r.push('待改进：'+n.join('、'));return r.join('\n');}
+function addCustomChip(cls){const inp=document.getElementById(cls==='pos'?'posCustomInput':'negCustomInput');const v=inp.value.trim();if(!v){showToast('⚠️ 请输入');return;}if(v.length>30){showToast('⚠️ 最多30字');return;}const fv=/^[\u{1F000}-\u{1FFFF}]|^[☀-➿]|^[\u{2700}-\u{27BF}]/u.test(v)?v:'📌 '+v;customChips[cls].push(fv);inp.value='';renderChips(cls==='pos'?'posChips':'negChips',cls==='pos'?POSITIVE_CHIPS:NEGATIVE_CHIPS,cls);updatePerfCounts();showToast(`✅ 已添加`);}
+function removeCustomChip(cls,idx){customChips[cls].splice(idx,1);renderChips(cls==='pos'?'posChips':'negChips',cls==='pos'?POSITIVE_CHIPS:NEGATIVE_CHIPS,cls);updatePerfCounts();}
+document.addEventListener('keydown',e=>{if(e.key==='Enter'){if(e.target.id==='posCustomInput'){e.preventDefault();addCustomChip('pos');}else if(e.target.id==='negCustomInput'){e.preventDefault();addCustomChip('neg');}}});
+
+// ===== History Style =====
+function getStyleInstruction(){
+  return (currentUser&&currentUser.style_instruction)||localStorage.getItem('tutor_style_instruction')||'';
+}
+
+// ===== Gen Type =====
+function selectGenType(t){currentGenType=t;}
+
+// ===== File Upload =====
+function handleFileUpload(i){if(i.files&&i.files[0])handleFile(i.files[0]);}
+async function handleFile(file){
+  const ext=file.name.split('.').pop().toLowerCase();
+  if(!['pdf','docx','doc'].includes(ext)){showToast('⚠️ 仅支持 PDF/Word');return;}
+  const z=document.getElementById('uploadZone');document.getElementById('uploadZoneIcon').textContent='⏳';document.getElementById('uploadZoneText').textContent='解析中…';
+  const fd=new FormData();fd.append('file',file);
+  try{
+    const r=await fetch('/upload',{method:'POST',body:fd});const j=await r.json();
+    if(j.error){showToast('❌ '+j.error);document.getElementById('uploadZoneIcon').textContent='📂';document.getElementById('uploadZoneText').textContent='上传 PDF 或 Word';return;}
+    document.getElementById('lectureContent').value=j.text;
+    document.getElementById('uploadZoneIcon').textContent='📄';document.getElementById('uploadZoneText').textContent='✅ '+file.name;z.classList.add('has-file');
+    document.getElementById('uploadZoneHint').textContent='点击 ✕ 取消上传，或重新上传替换';
+    const st=document.getElementById('uploadStatus');document.getElementById('uploadFileName').textContent=file.name;
+    document.getElementById('uploadFileInfo').textContent=' ('+(file.size/1024).toFixed(0)+'KB · '+j.text.length+'字)';st.classList.add('show');
+    document.getElementById('uploadRemoveBtn').style.display='inline-block';
+    showToast('✅ 解析完成！');
+  }catch(e){showToast('❌ 上传失败');document.getElementById('uploadZoneIcon').textContent='📂';document.getElementById('uploadZoneText').textContent='上传 PDF 或 Word';}
+}
+function clearUpload(){
+  document.getElementById('lectureContent').value='';
+  const z=document.getElementById('uploadZone');z.classList.remove('has-file');
+  document.getElementById('uploadZoneIcon').textContent='📂';
+  document.getElementById('uploadZoneText').textContent='上传 PDF 或 Word';
+  document.getElementById('uploadZoneHint').textContent='或直接在下框粘贴文字';
+  document.getElementById('uploadStatus').classList.remove('show');
+  document.getElementById('uploadRemoveBtn').style.display='none';
+  document.getElementById('fileInput').value='';
+  showToast('🗑️ 已清除上传');
+}
+
+// ===== Generate =====
+function selectWorkType(t){
+  document.getElementById('workType').value=t;
+  document.getElementById('wt-new').classList.toggle('selected',t==='上新课');
+  document.getElementById('wt-review').classList.toggle('selected',t==='复习');
+  document.getElementById('wt-hw').classList.toggle('selected',t==='陪写作业');
+  document.getElementById('lectureCard').style.display=(t==='陪写作业'?'none':'block');
+  document.getElementById('hwCard').style.display=(t==='陪写作业'?'block':'none');
+}
+async function generateFeedback(){
+  const workType=document.getElementById('workType').value;
+  const isHw=workType==='陪写作业';
+  let lecture='';
+  if(isHw){
+    lecture=document.getElementById('hwContent').value.trim();
+    if(!lecture){showToast('⚠️ 请填写作业完成情况');return;}
+  }else{
+    lecture=document.getElementById('lectureContent').value.trim();
+    if(!lecture){showToast('⚠️ 请先填写讲义');return;}
+  }
+  const cfg=getApiConfig();
+  if(!cfg.api_key){showToast('⚠️ 右上角配置 API Key');return;}
+  if(!cfg.api_base){showToast('⚠️ 填写 API 地址');return;}
+  if(!cfg.api_model){showToast('⚠️ 填写模型名称');return;}
+  const styleInst=getStyleInstruction();
+  const tonePref=(currentUser&&currentUser.preferences&&currentUser.preferences.tone)||'亲切温和';
+  const data={lecture,work_type:workType,student_name:document.getElementById('studentName').value.trim(),subject:document.getElementById('subjectContent')?document.getElementById('subjectContent').value:'',grade:document.getElementById('grade').value,date:document.getElementById('dateInput').value,performance:getSelectedPerformance(),extra_notes:document.getElementById('extraNotes').value.trim(),style_instruction:styleInst,tone:tonePref,...cfg};
+  showLoading(true);
+  try{
+    const r=await fetch('/generate/post',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+    const j=await r.json();
+    if(j.error){showToast('❌ '+j.error);return;}
+    document.getElementById('outputPost').innerHTML=formatOutput(j.text);
+    switchOutputTab('post');
+    showToast('✅ 已生成！');
+    // 自动保存到历史
+    await saveToHistory({type:'post',contentPre:'',contentPost:j.text});
+  }catch(e){showToast('❌ 请求失败');}finally{showLoading(false);}
+}
+function stripMd(s){
+  return s.replace(/\*\*(.+?)\*\*/g,'$1').replace(/__(.+?)__/g,'$1').replace(/\*(.+?)\*/g,'$1').replace(/_(.+?)_/g,'$1')
+    .replace(/`{1,3}[^`]*`{1,3}/g,'').replace(/\[(.+?)\]\(.+?\)/g,'$1').replace(/~~(.+?)~~/g,'$1')
+    .replace(/^###*\s+/gm,'').replace(/^>\s+/gm,'').replace(/^[-*+]\s+/gm,'');
+}
+function formatOutput(t){if(!t)return'';let h='<div class="feedback-content">';for(let l of t.split('\n')){l=stripMd(l);const s=l.trim();if(!s){h+='<br>';continue;}if(/^([\u{1F000}-\u{1FFFF}]|[☀-➿]|[\u{2700}-\u{27BF}]|[🌟✅⚠️📖🎯💡📋🔮⏰📚📝📌📩✨])\s*[【\[]/u.test(s)){h+=`<div class="section-title">${esc(s)}</div>`;}else if(/^([\u{1F000}-\u{1FFFF}]|[☀-➿]|[\u{2700}-\u{27BF}]|[🌟✅⚠️📖🎯💡📋🔮⏰📚📝📌])\s*/u.test(s)){h+=`<div class="section-title">${esc(s)}</div>`;}else if(/^[-•·]/.test(s)){h+=`<div style="padding-left:12px;">${esc(s)}</div>`;}else if(/^\d+[\.、]/.test(s)){h+=`<div style="padding-left:8px;">${esc(s)}</div>`;}else{h+=`<div>${esc(s)}</div>`;}}h+='</div>';return h;}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function switchOutputTab(t){currentOutputTab=t;document.querySelectorAll('.output-tab').forEach(b=>b.classList.toggle('active',b.dataset.otab===t));document.querySelectorAll('.output-content').forEach(c=>c.classList.toggle('active',c.id==='oc-'+t));if(t==='history')loadHistory();}
+function getCurrentOutputId(){return'outputPost';}
+function copyCurrent(){const t=document.getElementById(getCurrentOutputId()).innerText||'';if(!t.trim()){showToast('⚠️ 没有内容');return;}navigator.clipboard.writeText(t).then(()=>showToast('✅ 已复制！')).catch(()=>{const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);showToast('✅ 已复制！');});}
+function clearCurrent(){document.getElementById(getCurrentOutputId()).innerHTML='';showToast('🗑️ 已清空');}
+function showLoading(s){document.getElementById('loadingSpinner').classList.toggle('show',s);}
+
+async function refineFeedback(){
+  const original=document.getElementById('outputPost').innerText.trim();
+  if(!original){showToast('⚠️ 先生成一条反馈');return;}
+  const instruction=document.getElementById('refineInput').value.trim();
+  if(!instruction){showToast('⚠️ 输入修改意见');return;}
+  const cfg=getApiConfig();
+  if(!cfg.api_key){showToast('⚠️ 先配置 API');return;}
+  document.getElementById('refineBtn').disabled=true;
+  document.getElementById('refineLoading').style.display='block';
+  try{
+    const r=await fetch('/generate/refine',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      original,instruction,
+      style_instruction:getStyleInstruction(),
+      tone:(currentUser&&currentUser.preferences&&currentUser.preferences.tone)||'',
+      ...cfg
+    })});
+    const j=await r.json();
+    if(j.error){showToast('❌ '+j.error);return;}
+    document.getElementById('outputPost').innerHTML=formatOutput(j.text);
+    document.getElementById('refineInput').value='';
+    showToast('✅ 已修改！');
+  }catch(e){showToast('❌ 修改失败');}
+  finally{document.getElementById('refineBtn').disabled=false;document.getElementById('refineLoading').style.display='none';}
+}
+
+// ===== 历史记录 =====
+async function saveToHistory({type,contentPre,contentPost}){
+  try{
+    await fetch('/api/history/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      type,content_pre:contentPre,content_post:contentPost,
+      student_id:currentStudentId,
+      student_name:document.getElementById('studentName').value.trim(),
+      subject:document.getElementById('subjectContent')?document.getElementById('subjectContent').value:'',
+      grade:document.getElementById('grade').value,
+      date:document.getElementById('dateInput').value,
+      lecture_preview:(document.getElementById('hwContent').value||document.getElementById('lectureContent').value||'').trim().slice(0,80)
+    })});
+  }catch(e){/* silent */}
+}
+async function loadHistory(){
+  const list=document.getElementById('historyList');
+  const empty=document.getElementById('historyEmpty');
+  const toolbar=document.getElementById('historyToolbar');
+  const loading=document.getElementById('historyLoading');
+  if(!list)return;
+  loading.style.display='block';
+  try{
+    const url='/api/history/list'+(currentStudentId?'?student_id='+currentStudentId:'');
+    const r=await fetch(url);
+    const records=await r.json();
+    loading.style.display='none';
+    if(!records.length){
+      list.innerHTML='';empty.style.display='block';toolbar.style.display='none';
+      return;
+    }
+    empty.style.display='none';toolbar.style.display='flex';
+    document.getElementById('historyCount').textContent='共 '+records.length+' 条';
+    list.innerHTML=records.map(r=>{
+      const typeLabel={pre:'课前通知',post:'课后反馈',both:'课前+课后'}[r.type]||r.type;
+      const preview=(r.content_pre||r.content_post||'').replace(/<[^>]*>/g,'').replace(/\s+/g,' ').trim().slice(0,120);
+      return `<div class="history-item" data-id="${r.id}">
+        <div class="hi-header">
+          <span class="hi-date">${r.date}</span>
+          <span class="hi-tag hi-tag-${r.type}">${typeLabel}</span>
+          <span class="hi-student">${esc(r.student_name||'无名')} · ${r.grade||''} ${r.subject||''}</span>
+        </div>
+        <div class="hi-preview">${esc(preview)}</div>
+        <div class="hi-actions">
+          <button class="btn btn-sm btn-outline" onclick="loadHistoryItem('${r.id}')">📋 加载</button>
+          <button class="btn btn-sm btn-outline" onclick="deleteHistoryItem('${r.id}')">🗑️</button>
+        </div>
+      </div>`;
+    }).join('');
+  }catch(e){
+    loading.style.display='none';
+    list.innerHTML='<div style="text-align:center;padding:40px;color:var(--ink-soft);font-weight:600;">加载失败</div>';
+  }
+}
+async function loadHistoryItem(id){
+  try{
+    const r=await fetch('/api/history/list');
+    const records=await r.json();
+    const rec=records.find(x=>x.id===id);
+    if(!rec){showToast('⚠️ 记录不存在');return;}
+    if(rec.content_post)document.getElementById('outputPost').innerHTML=formatOutput(rec.content_post);
+    showToast('✅ 已加载');
+  }catch(e){showToast('❌ 加载失败');}
+}
+async function deleteHistoryItem(id){
+  if(!confirm('删除这条历史记录？'))return;
+  try{
+    await fetch('/api/history/delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id})});
+    loadHistory();
+    showToast('🗑️ 已删除');
+  }catch(e){showToast('❌ 删除失败');}
+}
+async function clearAllHistory(){
+  if(!confirm('确定清空所有历史记录？此操作不可恢复。'))return;
+  try{
+    await fetch('/api/history/clear',{method:'POST',headers:{'Content-Type':'application/json'}});
+    loadHistory();
+    showToast('🗑️ 已清空');
+  }catch(e){showToast('❌ 清空失败');}
+}
+
+// ===== 学生管理 =====
+async function refreshStudents(){
+  if(!currentUser)return;
+  try{
+    const r=await fetch('/api/user/students?device_id='+getDeviceId());
+    const students=await r.json();
+    const sel=document.getElementById('studentSelector');
+    const curVal=sel.value;
+    sel.innerHTML='<option value="">— 选择学生 —</option>'+students.map(s=>`<option value="${s.id}">${s.name} · ${s.grade||''}</option>`).join('');
+    if(curVal&&students.find(s=>s.id===curVal))sel.value=curVal;
+    else if(students.length)sel.value=students[0].id;
+    if(sel.value)onStudentChange();
+  }catch(e){}
+}
+async function onStudentChange(){
+  const sel=document.getElementById('studentSelector');
+  currentStudentId=sel.value;
+  if(!currentStudentId){
+    document.getElementById('studentInfo').classList.remove('show');
+    document.getElementById('studentName').value='';
+    return;
+  }
+  try{
+    const r=await fetch('/api/user/students?device_id='+getDeviceId());
+    const students=await r.json();
+    const stu=students.find(s=>s.id===currentStudentId);
+    if(stu){
+      document.getElementById('studentName').value=stu.name||'';
+      document.getElementById('subjectContent').value=stu.notes||'';
+      if(stu.grade){
+        const sel=document.getElementById('grade');
+        sel.value=stu.grade;
+        if(sel.value!==stu.grade){
+          for(let o of sel.options){if(o.value===stu.grade||o.textContent.trim()===stu.grade){sel.value=o.value;break;}}
+        }
+      }
+      const info=document.getElementById('studentInfo');
+      info.innerHTML=(stu.notes?'📝 '+stu.notes:'')||'点击"管理"可编辑学生信息';
+      info.classList.add('show');
+    }
+  }catch(e){}
+}
+async function openStudentModal(){
+  const ov=document.getElementById('studentModal');ov.classList.add('show');
+  if(!currentUser)return;
+  try{
+    const r=await fetch('/api/user/students?device_id='+getDeviceId());
+    const students=await r.json();
+    const el=document.getElementById('stuManageList');
+    el.innerHTML=students.length?students.map(s=>`<div class="stu-list-item">
+      <div class="sli-info">${s.name}<small>${s.grade||''}${s.notes?' · '+s.notes:''}</small></div>
+      <div class="sli-actions">
+        <button onclick="deleteStudent('${s.id}')">🗑️</button>
+      </div>
+    </div>`).join(''):'<div style="text-align:center;padding:20px;color:var(--ink-soft);font-size:.85rem">暂无学生</div>';
+  }catch(e){}
+}
+function closeStudentModal(){document.getElementById('studentModal').classList.remove('show');}
+async function addStudentFromForm(){
+  const name=document.getElementById('stuFormName').value.trim();
+  if(!name){showToast('⚠️ 输入姓名');return;}
+  try{
+    const r=await fetch('/api/user/students',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      device_id:getDeviceId(),name,
+      grade:document.getElementById('stuFormGrade').value,
+      notes:document.getElementById('stuFormContent').value.trim()
+    })});
+    const stu=await r.json();
+    if(stu.error){showToast('❌ '+stu.error);return;}
+    document.getElementById('stuFormName').value='';document.getElementById('stuFormContent').value='';
+    showToast('✅ 已添加 '+stu.name);
+    openStudentModal();
+    refreshStudents();
+  }catch(e){showToast('❌ 添加失败');}
+}
+async function deleteStudent(id){
+  if(!confirm('删除此学生？历史记录不受影响。'))return;
+  try{
+    await fetch('/api/user/students/'+id+'?device_id='+getDeviceId(),{method:'DELETE'});
+    openStudentModal();refreshStudents();
+    showToast('🗑️ 已删除');
+  }catch(e){showToast('❌ 删除失败');}
+}
+
+// ===== Export Image =====
+async function exportCurrentAsImage(){
+  const t=document.getElementById(getCurrentOutputId()).innerText||'';
+  if(!t.trim()){showToast('⚠️ 没有内容');return;}
+  showToast('🖼️ 生成中…');
+  const card=document.createElement('div');card.className='export-card';card.style.cssText='position:fixed;left:-9999px;top:0;width:800px;';
+  const title=currentOutputTab==='pre'?'📩 课前通知':'📋 课后反馈';
+  const today=new Date().toLocaleDateString('zh-CN',{year:'numeric',month:'long',day:'numeric'});
+  card.innerHTML=`<div class="ec-header"><div class="ec-title">${title}</div><div class="ec-meta">${today}</div></div><div class="ec-body">${t}</div><div class="ec-footer">由「家教反馈助手」生成 · 让家长更安心</div>`;
+  document.body.appendChild(card);await new Promise(r=>setTimeout(r,200));
+  try{const canvas=await html2canvas(card,{scale:2,backgroundColor:'#FFFFFF',useCORS:true,logging:false,width:800,windowWidth:800});capturedImageData=canvas.toDataURL('image/png');document.getElementById('modalImage').src=capturedImageData;document.getElementById('imageModal').classList.add('show');showToast('✅ 成功！');}catch(e){showToast('❌ 失败');}finally{document.body.removeChild(card);}
+}
+function downloadImage(){if(!capturedImageData)return;const a=document.createElement('a');a.download=`家教反馈_${new Date().toISOString().slice(0,10)}.png`;a.href=capturedImageData;a.click();}
+function closeModal(){document.getElementById('imageModal').classList.remove('show');}
+document.getElementById('imageModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
+function showToast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(el._timeout);el._timeout=setTimeout(()=>el.classList.remove('show'),3000);}
+</script>
+</body>
+</html>
